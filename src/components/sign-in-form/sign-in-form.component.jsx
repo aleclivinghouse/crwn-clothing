@@ -1,38 +1,35 @@
 import {useState} from 'react';
-import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth} from '../../utils/firebase/firebase.utils';
+import { createAuthUserWithEmailAndPassword, createUserDocumentFromAuth, signInWithGooglePopup, signInAuthUserWithEmailAndPassword, auth} from '../../utils/firebase/firebase.utils';
 import FormInput from '../form-input/form-input.component';
 import Button from '../../components/button/button.component.jsx';
-import './sign-up-form.styles.scss';
+import { createUserWithEmailAndPassword } from '@firebase/auth';
+import './sign-in-form.styles.scss';
 
 const defaultFormFields = {
-    displayName: '',
     email: '',
     password: '',
-    confirmPassword:''
 }
 
-const SignUpForm = () => {
+const SignInForm = () => {
     const [formFields, setFormFields] = useState(defaultFormFields);
-    const {displayName, email, password, confirmPassword} = formFields;
+    const {email, password} = formFields;
     console.log("these are the form fields: ", formFields);
 
     const resetFormFields = () => {
         setFormFields(defaultFormFields);
     }
 
+    const signInWithGoogle = async () => {
+        const {user} = await signInWithGooglePopup();
+        const userDocRef = await createUserDocumentFromAuth(user);
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        if(password !== confirmPassword){
-            alert("passwords do not match");
-            return;
-        }
         try{
-            const {user} = await createAuthUserWithEmailAndPassword(email, password);
-            await createUserDocumentFromAuth(user, {displayName});
-            resetFormFields();
-
-            console.log("this is the response for user creation ", {user})
+          const response = await signInAuthUserWithEmailAndPassword(email, password);
+          console.log("this is the response to signInAuthUserWithEmailAndPassword: ",response);
+          resetFormFields();
         }catch(error){
             console.log("user creation enountered an error: ", error)
         }
@@ -46,11 +43,9 @@ const SignUpForm = () => {
 
     return(
         <div className='sign-up-container'>
-            <h2>Don't have an account?</h2>
-            <span>Sign up with your email and password</span>
+            <h2>Have An Account?</h2>
+            <span>Sign In</span>
             <form onSubmit={handleSubmit}>
-                
-                <FormInput label='Display Name' type='text' required onChange={handleChange} name="displayName" value={displayName}/>
 
                
                 <FormInput label='email' type='email' required onChange={handleChange} name="email" value={email}/>
@@ -58,13 +53,10 @@ const SignUpForm = () => {
                 
                 <FormInput label='password' type='password' required onChange={handleChange} name="password" value={password}/>
 
-                
-                <FormInput label='confirm password' type='password' required onChange={handleChange} name="confirmPassword" value={confirmPassword}/>
-
-                <Button buttonType='google' type='submit'>Submit</Button>
+                <Button buttonType='google' type='submit'>Sign In</Button>
             </form>
         </div>
     )
 }
 
-export default SignUpForm;
+export default SignInForm;
