@@ -4,6 +4,7 @@ import FormInput from '../form-input/form-input.component';
 import Button from '../../components/button/button.component.jsx';
 import { createUserWithEmailAndPassword } from '@firebase/auth';
 import './sign-in-form.styles.scss';
+import {UserContext} from '../../contexts/user.context';
 
 const defaultFormFields = {
     email: '',
@@ -27,8 +28,7 @@ const SignInForm = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try{
-          const response = await signInAuthUserWithEmailAndPassword(email, password);
-          console.log("this is the response to signInAuthUserWithEmailAndPassword: ",response);
+          await signInAuthUserWithEmailAndPassword(email, password);
           resetFormFields();
         }catch(error){
             console.log("user creation enountered an error: ", error)
